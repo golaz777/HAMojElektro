@@ -30,7 +30,8 @@
       "init": {
         "title": "Moj Elektro nastavitve",
         "data": {
-          "scan_interval_hours": "Interval osveževanja (ure)"
+          "scan_interval_hours": "Interval osveževanja (ure)",
+          "features": "Podatki za prenos"
         }
       }
     }
@@ -39,6 +40,12 @@
     "sensor": {
       "daily_consumption": {
         "name": "Dnevna poraba"
+      },
+      "current_tariff_block": {
+        "name": "Trenutni časovni blok"
+      },
+      "monthly_peak_power": {
+        "name": "Mesečna konica moči"
       }
     }
   }

@@ -30,7 +30,8 @@
       "init": {
         "title": "Moj Elektro options",
         "data": {
-          "scan_interval_hours": "Refresh interval (hours)"
+          "scan_interval_hours": "Refresh interval (hours)",
+          "features": "Data to fetch"
         }
       }
     }
@@ -39,6 +40,12 @@
     "sensor": {
       "daily_consumption": {
         "name": "Daily consumption"
+      },
+      "current_tariff_block": {
+        "name": "Current tariff block"
+      },
+      "monthly_peak_power": {
+        "name": "Monthly peak power"
       }
     }
   }

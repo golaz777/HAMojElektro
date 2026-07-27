@@ -18,11 +18,18 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import MojElektroApiClient, MojElektroApiError, MojElektroAuthError
 from .const import (
+    ALL_FEATURES,
+    CONF_FEATURES,
     CONF_METER_ID,
     CONF_SCAN_INTERVAL_HOURS,
     CONF_TOKEN,
     DEFAULT_SCAN_INTERVAL_HOURS,
     DOMAIN,
+    FEATURE_BLOCKS,
+    FEATURE_EXPORT,
+    FEATURE_HELPERS,
+    FEATURE_INTERVALS,
+    FEATURE_TARIFF_SPLIT,
     MAX_SCAN_INTERVAL_HOURS,
     MIN_SCAN_INTERVAL_HOURS,
 )
@@ -32,13 +39,28 @@ _LOGGER = logging.getLogger(__name__)
 # The user's own key for the metering-location id entered in step one.
 CONF_LOCATION_ID = "location_id"
 
+_FEATURE_LABELS = {
+    FEATURE_EXPORT: "Solar export (A-)",
+    FEATURE_TARIFF_SPLIT: "Peak/off-peak split (VT/MT)",
+    FEATURE_BLOCKS: "5 time-blocks (blok 1-5)",
+    FEATURE_INTERVALS: "15-minute interval detail",
+    FEATURE_HELPERS: "Helper sensors (current block, agreed/peak power)",
+}
+_FEATURE_OPTIONS = [
+    selector.SelectOptionDict(value=key, label=label)
+    for key, label in _FEATURE_LABELS.items()
+]
 
-def _interval_schema(default: int) -> vol.Schema:
-    """Schema for the scan-interval option (shared by config + options)."""
+
+def _options_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Build the options schema (scan interval + feature groups)."""
     return vol.Schema(
         {
             vol.Required(
-                CONF_SCAN_INTERVAL_HOURS, default=default
+                CONF_SCAN_INTERVAL_HOURS,
+                default=defaults.get(
+                    CONF_SCAN_INTERVAL_HOURS, DEFAULT_SCAN_INTERVAL_HOURS
+                ),
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=MIN_SCAN_INTERVAL_HOURS,
@@ -47,7 +69,17 @@ def _interval_schema(default: int) -> vol.Schema:
                     unit_of_measurement="hours",
                     mode=selector.NumberSelectorMode.BOX,
                 )
-            )
+            ),
+            vol.Required(
+                CONF_FEATURES,
+                default=defaults.get(CONF_FEATURES, ALL_FEATURES),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=_FEATURE_OPTIONS,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
         }
     )
 
@@ -111,7 +143,10 @@ class MojElektroConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(
                 title=f"Moj Elektro {usage_point}",
                 data={CONF_TOKEN: self._token, CONF_METER_ID: usage_point},
-                options={CONF_SCAN_INTERVAL_HOURS: DEFAULT_SCAN_INTERVAL_HOURS},
+                options={
+                    CONF_SCAN_INTERVAL_HOURS: DEFAULT_SCAN_INTERVAL_HOURS,
+                    CONF_FEATURES: ALL_FEATURES,
+                },
             )
 
         return self.async_show_form(
@@ -156,7 +191,7 @@ class MojElektroConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class MojElektroOptionsFlow(OptionsFlow):
-    """Handle Moj Elektro options (refresh interval)."""
+    """Handle Moj Elektro options (refresh interval + enabled features)."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -167,13 +202,12 @@ class MojElektroOptionsFlow(OptionsFlow):
                 data={
                     CONF_SCAN_INTERVAL_HOURS: int(
                         user_input[CONF_SCAN_INTERVAL_HOURS]
-                    )
+                    ),
+                    CONF_FEATURES: user_input[CONF_FEATURES],
                 }
             )
 
-        current = self.config_entry.options.get(
-            CONF_SCAN_INTERVAL_HOURS, DEFAULT_SCAN_INTERVAL_HOURS
-        )
         return self.async_show_form(
-            step_id="init", data_schema=_interval_schema(current)
+            step_id="init",
+            data_schema=_options_schema(dict(self.config_entry.options)),
         )

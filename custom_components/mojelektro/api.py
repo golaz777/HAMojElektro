@@ -10,6 +10,7 @@ import aiohttp
 
 from .const import (
     API_BASE_URL,
+    EP_MERILNA_TOCKA,
     EP_MERILNO_MESTO,
     EP_METER_READINGS,
     READINGTYPE_DAILY,
@@ -71,6 +72,12 @@ class MojElektroApiClient:
             return data.get("merilneTocke") or []
         return []
 
+    async def async_get_metering_point_detail(self, gsrn: str) -> dict[str, Any]:
+        """Return the detail for one metering point (incl. ``dogovorjeneMoci``)."""
+        path = EP_MERILNA_TOCKA.format(gsrn=gsrn)
+        data = await self._get(path)
+        return data if isinstance(data, dict) else {}
+
     async def async_validate(self, meter_id: str) -> bool:
         """Return True if the token is accepted for this metering location.
 
@@ -81,27 +88,37 @@ class MojElektroApiClient:
         await self.async_get_metering_points(meter_id)
         return True
 
-    async def async_get_daily_readings(
-        self, usage_point: str, start: str, end: str
-    ) -> list[dict[str, Any]]:
-        """Return the daily cumulative-register ``intervalReadings``.
+    async def async_get_meter_readings(
+        self, usage_point: str, start: str, end: str, reading_types: list[str]
+    ) -> dict[str, list[dict[str, Any]]]:
+        """Return ``{reading_type: intervalReadings}`` for the given types.
 
-        ``start``/``end`` are ``YYYY-MM-DD`` strings. The result is the list of
-        ``{timestamp, value}`` entries for the daily active-energy register, or
-        an empty list when the API returns no matching block.
+        ``start``/``end`` are ``YYYY-MM-DD`` strings. One request carries all
+        reading types via repeated ``option=ReadingType=...`` params. Reading
+        types with no returned block map to an empty list.
         """
-        params = [
+        params: list[tuple[str, str]] = [
             ("usagePoint", usage_point),
             ("startTime", start),
             ("endTime", end),
-            ("option", f"ReadingType={READINGTYPE_DAILY}"),
         ]
+        params.extend(("option", f"ReadingType={rt}") for rt in reading_types)
+
         data = await self._get(EP_METER_READINGS, params)
         blocks = data.get("intervalBlocks") if isinstance(data, dict) else None
-        if not blocks:
-            return []
-        for block in blocks:
-            if block.get("readingType") == READINGTYPE_DAILY:
-                return block.get("intervalReadings") or []
-        # Fall back to the first block if the API omits/renames the readingType.
-        return blocks[0].get("intervalReadings") or []
+
+        result: dict[str, list[dict[str, Any]]] = {rt: [] for rt in reading_types}
+        for block in blocks or []:
+            rt = block.get("readingType")
+            if rt in result:
+                result[rt] = block.get("intervalReadings") or []
+        return result
+
+    async def async_get_daily_readings(
+        self, usage_point: str, start: str, end: str
+    ) -> list[dict[str, Any]]:
+        """Back-compat helper: the daily A+ total register only."""
+        readings = await self.async_get_meter_readings(
+            usage_point, start, end, [READINGTYPE_DAILY]
+        )
+        return readings.get(READINGTYPE_DAILY, [])

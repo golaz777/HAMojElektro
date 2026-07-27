@@ -8,8 +8,12 @@ pytest_plugins = ["pytest_homeassistant_custom_component"]
 
 
 @pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations):
-    """Enable loading of the custom integration in all tests."""
+def auto_enable_custom_integrations(recorder_db_url, enable_custom_integrations):
+    """Enable loading of the custom integration in all tests.
+
+    ``recorder_db_url`` is requested first so it runs before ``hass`` is set up,
+    which keeps ``recorder_mock`` usable in tests that need the recorder.
+    """
     yield
 
 

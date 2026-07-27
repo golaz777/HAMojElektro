@@ -15,6 +15,23 @@ than on the day it happened to be fetched.
 - `sensor.moj_elektro_daily_consumption` — the last completed day's consumption (kWh).
 - Energy Dashboard statistic `mojelektro:<meter>_energy_consumption`.
 
+### Optional data (toggle in **Configure**)
+
+All enabled by default; turn off what you don't need (e.g. export if you have no solar):
+
+| Group | Sensors | Statistics |
+| --- | --- | --- |
+| Solar export (A−) | daily export total/peak/off-peak | `…_daily_export*` → **Return to grid** |
+| Peak/off-peak split | daily consumption peak / off-peak | `…_daily_consumption_peak/_offpeak` |
+| 5 time-blocks | daily kWh per block (1–5) | `…_blok_1…5` |
+| 15-minute detail | — | `…_import_15min`, `…_export_15min` (hourly) |
+| Helper sensors | current tariff block, monthly peak power, agreed power per block | — |
+
+**Energy Dashboard mapping:** keep `…_energy_consumption` as your grid **consumption**
+source and `…_daily_export` as **return to grid**. Peak/off-peak and per-block statistics
+are for their own history/cards — don't add two overlapping totals as consumption. The
+15-minute statistics are a finer-resolution alternative to the daily total, not an addition.
+
 ## Getting an API token
 
 1. Log in at [mojelektro.si](https://mojelektro.si).
