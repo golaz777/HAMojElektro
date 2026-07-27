@@ -1,0 +1,45 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Moj Elektro",
+        "description": "Create an API token at mojelektro.si (Moj Profil → Kreiraj žeton) and enter it together with your metering-location id (merilno mesto).",
+        "data": {
+          "token": "API token",
+          "location_id": "Metering-location id (merilno mesto)"
+        }
+      },
+      "meter": {
+        "title": "Metering point",
+        "description": "Choose which metering point to read.",
+        "data": {
+          "meter_id": "Metering point"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The API token was rejected. Check the token and try again.",
+      "cannot_connect": "Could not reach the Moj Elektro API. Check your connection and the metering-location id."
+    },
+    "abort": {
+      "already_configured": "This metering point is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Moj Elektro options",
+        "data": {
+          "scan_interval_hours": "Refresh interval (hours)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "daily_consumption": {
+        "name": "Daily consumption"
+      }
+    }
+  }
+}

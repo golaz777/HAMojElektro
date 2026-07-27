@@ -1,0 +1,13 @@
+{
+  "domain": "mojelektro",
+  "name": "Moj Elektro",
+  "codeowners": ["@golaz777"],
+  "config_flow": true,
+  "after_dependencies": ["recorder"],
+  "documentation": "https://github.com/golaz777/HAMojElektro",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/golaz777/HAMojElektro/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

@@ -1,0 +1,45 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Moj Elektro",
+        "description": "Ustvarite API žeton na mojelektro.si (Moj Profil → Kreiraj žeton) in ga vnesite skupaj z id-jem merilnega mesta.",
+        "data": {
+          "token": "API žeton",
+          "location_id": "Id merilnega mesta"
+        }
+      },
+      "meter": {
+        "title": "Merilna točka",
+        "description": "Izberite merilno točko za odčitavanje.",
+        "data": {
+          "meter_id": "Merilna točka"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "API žeton je bil zavrnjen. Preverite žeton in poskusite znova.",
+      "cannot_connect": "Povezava s Moj Elektro API ni uspela. Preverite povezavo in id merilnega mesta."
+    },
+    "abort": {
+      "already_configured": "Ta merilna točka je že nastavljena."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Moj Elektro nastavitve",
+        "data": {
+          "scan_interval_hours": "Interval osveževanja (ure)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "daily_consumption": {
+        "name": "Dnevna poraba"
+      }
+    }
+  }
+}
