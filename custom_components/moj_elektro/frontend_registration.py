@@ -13,8 +13,8 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-FRONTEND_URL = "/mojelektro/mojelektro-cards.js"
-_BUNDLE = Path(__file__).parent / "frontend" / "mojelektro-cards.js"
+FRONTEND_URL = "/moj_elektro/moj_elektro-cards.js"
+_BUNDLE = Path(__file__).parent / "frontend" / "moj_elektro-cards.js"
 _REGISTERED_KEY = f"{DOMAIN}_frontend_registered"
 
 

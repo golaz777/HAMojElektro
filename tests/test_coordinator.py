@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from custom_components.mojelektro.coordinator import (
+from custom_components.moj_elektro.coordinator import (
     MojElektroDataUpdateCoordinator as C,
 )
 

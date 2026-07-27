@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0 — BREAKING: domain renamed
+
+The integration domain changed from `mojelektro` to **`moj_elektro`** so it has its
+own brand (the old `mojelektro` domain/brand belongs to `frlequ/homeassistant-mojelektro`).
+
+**You must remove and re-add the integration:**
+
+1. Settings → Devices & Services → Moj Elektro → delete the entry.
+2. Update to 1.0.0 in HACS and restart Home Assistant.
+3. Add the integration again (token + metering point).
+4. Re-select the statistics in the Energy Dashboard — the ids changed from
+   `mojelektro:<meter>_…` to `moj_elektro:<meter>_…`, so previous statistics history
+   stays under the old ids (removable via Developer Tools → Statistics).
+
+The custom card type is now `custom:moj-elektro-card` (auto-registered as before).
+
 ## 0.4.0
 
 - The **Moj Elektro** dashboard card now shows a **daily usage (kWh) bar chart** at

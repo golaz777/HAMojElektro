@@ -7,12 +7,12 @@
  * "Moj Elektro" — no manual YAML required.
  *
  * Optional config:
- *   type: custom:mojelektro-card
+ *   type: custom:moj-elektro-card
  *   title: Moj Elektro          # card header (default "Moj Elektro")
  *   prefix: sensor.moj_elektro_ # entity-id prefix to match (default this)
  *   daily_graph: true           # show the daily-usage kWh bar chart (default true)
  *   days_to_show: 30            # days in the daily-usage chart (default 30)
- *   statistic: mojelektro:..._energy_consumption  # override auto-detection
+ *   statistic: moj_elektro:..._energy_consumption  # override auto-detection
  */
 
 const DEFAULT_PREFIX = "sensor.moj_elektro_";
@@ -189,7 +189,7 @@ class MojElektroCard extends HTMLElement {
         const match = (ids || []).find(
           (s) =>
             s.statistic_id &&
-            s.statistic_id.startsWith("mojelektro:") &&
+            s.statistic_id.startsWith("moj_elektro:") &&
             s.statistic_id.endsWith("_energy_consumption")
         );
         statId = match && match.statistic_id;
@@ -244,11 +244,11 @@ class MojElektroCard extends HTMLElement {
   }
 }
 
-customElements.define("mojelektro-card", MojElektroCard);
+customElements.define("moj-elektro-card", MojElektroCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "mojelektro-card",
+  type: "moj-elektro-card",
   name: "Moj Elektro",
   description: "All Moj Elektro sensors (consumption, export, blocks, power).",
   preview: false,

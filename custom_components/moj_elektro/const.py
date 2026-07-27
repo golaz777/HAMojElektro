@@ -7,7 +7,7 @@ from typing import Final
 
 from homeassistant.util import slugify
 
-DOMAIN: Final = "mojelektro"
+DOMAIN: Final = "moj_elektro"
 
 # Moj Elektro REST API (Informatika d.o.o.). Production environment.
 API_BASE_URL: Final = "https://api.informatika.si/mojelektro/v1"

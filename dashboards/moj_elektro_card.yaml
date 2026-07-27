@@ -80,7 +80,7 @@ cards:
         name: Export
 
   # Daily usage (kWh) bar chart from long-term statistics. Replace <meter> with
-  # your metering-point id slug, e.g. mojelektro:3_8110057_energy_consumption
+  # your metering-point id slug, e.g. moj_elektro:3_8110057_energy_consumption
   # (find the exact ids in Developer Tools → Statistics).
   - type: statistics-graph
     title: Daily usage (kWh)
@@ -90,7 +90,7 @@ cards:
       - change
     chart_type: bar
     entities:
-      - mojelektro:<meter>_energy_consumption
+      - moj_elektro:<meter>_energy_consumption
 
   # Monthly energy statistics (consumption vs export).
   - type: statistics-graph
@@ -100,5 +100,5 @@ cards:
       - change
     chart_type: bar
     entities:
-      - mojelektro:<meter>_energy_consumption
-      - mojelektro:<meter>_daily_export
+      - moj_elektro:<meter>_energy_consumption
+      - moj_elektro:<meter>_daily_export

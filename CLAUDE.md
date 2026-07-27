@@ -1,6 +1,6 @@
 # HAMojElektro — developer notes
 
-HACS custom integration (domain `mojelektro`) for Slovenian Moj Elektro electricity
+HACS custom integration (domain `moj_elektro`) for Slovenian Moj Elektro electricity
 metering data. Structured after `golaz777/HAMotoGP`.
 
 ## Architecture
@@ -12,7 +12,7 @@ metering data. Structured after `golaz777/HAMotoGP`.
   (default 12). `_compute_daily` turns cumulative register readings into per-day
   consumption (`value[n] - value[n-1]`, attributed to the earlier day).
 - `statistics.py` — pushes external long-term statistics
-  (`mojelektro:<meter>_energy_consumption`) via `async_add_external_statistics`,
+  (`moj_elektro:<meter>_energy_consumption`) via `async_add_external_statistics`,
   keyed on the reading's real timestamp so Energy Dashboard placement is correct
   despite the ~24h API delay. `sum` = cumulative register → re-imports are idempotent.
 - `config_flow.py` — step 1 token + location id (validates via metering-points call,

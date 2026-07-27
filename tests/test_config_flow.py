@@ -7,7 +7,7 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.mojelektro.const import (
+from custom_components.moj_elektro.const import (
     API_BASE_URL,
     CONF_METER_ID,
     CONF_TOKEN,

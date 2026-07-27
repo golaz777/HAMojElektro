@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.mojelektro.const import (
+from custom_components.moj_elektro.const import (
     ALL_FEATURES,
     API_BASE_URL,
     CONF_FEATURES,

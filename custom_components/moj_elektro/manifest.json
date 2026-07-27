@@ -1,5 +1,5 @@
 {
-  "domain": "mojelektro",
+  "domain": "moj_elektro",
   "name": "Moj Elektro",
   "after_dependencies": ["frontend", "http", "recorder"],
   "codeowners": ["@golaz777"],
@@ -9,5 +9,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/golaz777/HAMojElektro/issues",
   "requirements": [],
-  "version": "0.4.0"
+  "version": "1.0.0"
 }

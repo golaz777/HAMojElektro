@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from custom_components.mojelektro.const import statistic_id
-from custom_components.mojelektro.statistics import build_statistics
+from custom_components.moj_elektro.const import statistic_id
+from custom_components.moj_elektro.statistics import build_statistics
 
 
 def test_statistic_id_is_slugified():
@@ -13,7 +13,7 @@ def test_statistic_id_is_slugified():
     from homeassistant.components.recorder.statistics import valid_statistic_id
 
     sid = statistic_id("3-8110057")
-    assert sid == "mojelektro:3_8110057_energy_consumption"
+    assert sid == "moj_elektro:3_8110057_energy_consumption"
     assert valid_statistic_id(sid)
 
 

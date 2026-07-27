@@ -13,7 +13,7 @@ than on the day it happened to be fetched.
 
 - Config flow (UI): enter your API token, then pick a metering point.
 - **Daily consumption** sensor + accurate Energy Dashboard statistic
-  (`mojelektro:<meter>_energy_consumption`), timestamped on the real day of use.
+  (`moj_elektro:<meter>_energy_consumption`), timestamped on the real day of use.
 - **Solar export**, **peak/off-peak split**, **5 network time-blocks**, and
   **15-minute** detail — each as sensors and/or long-term statistics (see below).
 - **Helper sensors**: current tariff block (1–5), monthly peak power, agreed power per block.
@@ -57,11 +57,11 @@ Updates then arrive through HACS like any other integration.
 
 ### Brand icon / logo
 
-Original brand assets live in [`custom_components/mojelektro/brand/`](custom_components/mojelektro/brand).
+Original brand assets live in [`custom_components/moj_elektro/brand/`](custom_components/moj_elektro/brand).
 Home Assistant loads integration icons from the
 [home-assistant/brands](https://github.com/home-assistant/brands) CDN, so to have the
 icon/logo appear on the device and integration pages these images must also be
-submitted there (a one-time PR under `custom_integrations/mojelektro/`).
+submitted there (a one-time PR under `custom_integrations/moj_elektro/`).
 
 ## Dashboard card
 
@@ -78,18 +78,18 @@ the browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
 Optional config (all optional):
 
 ```yaml
-type: custom:mojelektro-card
+type: custom:moj-elektro-card
 title: Moj Elektro
 prefix: sensor.moj_elektro_   # change only if HA gave your entities a different prefix
 ```
 
 A plain built-in-cards version (no custom card) is also available as
-[`dashboards/mojelektro_card.yaml`](dashboards/mojelektro_card.yaml) for manual pasting.
+[`dashboards/moj_elektro_card.yaml`](dashboards/moj_elektro_card.yaml) for manual pasting.
 
 ## Energy Dashboard
 
 After setup, go to **Settings → Dashboards → Energy → Add consumption** and
-select `mojelektro:<meter>_energy_consumption`. Because data is delayed ~24h, the
+select `moj_elektro:<meter>_energy_consumption`. Because data is delayed ~24h, the
 most recent day fills in the following day.
 
 ## Notes

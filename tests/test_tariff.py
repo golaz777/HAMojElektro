@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from custom_components.mojelektro.tariff import (
+from custom_components.moj_elektro.tariff import (
     block_for,
     is_weekend_or_holiday,
 )
