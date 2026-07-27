@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+- Added brand assets (device icon + logo) under `custom_components/mojelektro/brand/`.
+  To make them render in the Home Assistant UI they also need submitting to the
+  [home-assistant/brands](https://github.com/home-assistant/brands) repository.
+
 ## 0.3.0
 
 - Bundled **Moj Elektro dashboard card**: the integration registers a custom

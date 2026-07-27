@@ -55,6 +55,14 @@ are for their own history/cards — don't add two overlapping totals as consumpt
 
 Updates then arrive through HACS like any other integration.
 
+### Brand icon / logo
+
+Original brand assets live in [`custom_components/mojelektro/brand/`](custom_components/mojelektro/brand).
+Home Assistant loads integration icons from the
+[home-assistant/brands](https://github.com/home-assistant/brands) CDN, so to have the
+icon/logo appear on the device and integration pages these images must also be
+submitted there (a one-time PR under `custom_integrations/mojelektro/`).
+
 ## Dashboard card
 
 The integration bundles a **Moj Elektro** dashboard card and registers it with the
