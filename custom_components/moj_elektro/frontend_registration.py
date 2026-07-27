@@ -8,6 +8,7 @@ from pathlib import Path
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN
 
@@ -23,6 +24,10 @@ async def async_register_frontend(hass: HomeAssistant) -> None:
 
     Best-effort: registering the dashboard card must never fail integration
     setup, so any problem (frontend/http not ready) is logged and swallowed.
+
+    The extra-JS url carries a ``?v=<version>`` cache-buster so aggressive
+    caches (e.g. Fully Kiosk / Android WebView) fetch the current card after an
+    update instead of a stale copy.
     """
     if hass.data.get(_REGISTERED_KEY):
         return
@@ -30,10 +35,11 @@ async def async_register_frontend(hass: HomeAssistant) -> None:
     if http is None:
         return
     try:
+        version = (await async_get_integration(hass, DOMAIN)).version or "0"
         await http.async_register_static_paths(
             [StaticPathConfig(FRONTEND_URL, str(_BUNDLE), False)]
         )
-        add_extra_js_url(hass, FRONTEND_URL)
+        add_extra_js_url(hass, f"{FRONTEND_URL}?v={version}")
     except Exception as err:  # noqa: BLE001 - card is optional, never break setup
         _LOGGER.debug("Could not register Moj Elektro frontend card: %s", err)
         return

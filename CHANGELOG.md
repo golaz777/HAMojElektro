@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1
+
+- Dashboard card: the registered JS url now carries a `?v=<version>` cache-buster so
+  aggressive caches (Fully Kiosk / Android WebView) load the current card after an
+  update instead of a stale copy — fixes a red "configuration error" card on kiosk
+  tablets after the v1.0.0 rename.
+- Fixed the row-tap more-info handler (`CustomEvent`) and made the card degrade
+  quietly instead of ever rendering as an error card.
+
 ## 1.0.0 — BREAKING: domain renamed
 
 The integration domain changed from `mojelektro` to **`moj_elektro`** so it has its

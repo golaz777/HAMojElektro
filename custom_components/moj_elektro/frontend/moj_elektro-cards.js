@@ -70,12 +70,17 @@ class MojElektroCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    if (!this._built) {
-      this._build();
-    }
-    this._update();
-    if (this._graphEl) {
-      this._graphEl.hass = hass;
+    try {
+      if (!this._built) {
+        this._build();
+      }
+      this._update();
+      if (this._graphEl) {
+        this._graphEl.hass = hass;
+      }
+    } catch (err) {
+      // Never surface as a Lovelace error card — degrade quietly.
+      console.error("moj-elektro-card render error", err);
     }
   }
 
@@ -230,9 +235,13 @@ class MojElektroCard extends HTMLElement {
   }
 
   _moreInfo(entityId) {
-    const ev = new Event("hass-more-info", { bubbles: true, composed: true });
-    ev.detail = { entityId };
-    this.dispatchEvent(ev);
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", {
+        detail: { entityId },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   getCardSize() {
