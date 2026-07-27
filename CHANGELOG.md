@@ -16,6 +16,9 @@ own brand (the old `mojelektro` domain/brand belongs to `frlequ/homeassistant-mo
 
 The custom card type is now `custom:moj-elektro-card` (auto-registered as before).
 
+The bundled brand icon/logo now render natively (HA 2026.3+ serves the `brand/` folder
+via its local brands proxy — no home-assistant/brands submission needed).
+
 ## 0.4.0
 
 - The **Moj Elektro** dashboard card now shows a **daily usage (kWh) bar chart** at

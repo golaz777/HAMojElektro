@@ -57,11 +57,10 @@ Updates then arrive through HACS like any other integration.
 
 ### Brand icon / logo
 
-Original brand assets live in [`custom_components/moj_elektro/brand/`](custom_components/moj_elektro/brand).
-Home Assistant loads integration icons from the
-[home-assistant/brands](https://github.com/home-assistant/brands) CDN, so to have the
-icon/logo appear on the device and integration pages these images must also be
-submitted there (a one-time PR under `custom_integrations/moj_elektro/`).
+Original brand assets live in [`custom_components/moj_elektro/brand/`](custom_components/moj_elektro/brand)
+(`icon.png`, `icon@2x.png`, `logo.png`, `logo@2x.png`). Home Assistant **2026.3+ serves
+these natively** from the `brand/` folder via its local brands proxy — the icon/logo
+appear on the device and integration pages automatically, no brands-repo submission needed.
 
 ## Dashboard card
 
