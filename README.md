@@ -50,6 +50,14 @@ are for their own history/cards — don't add two overlapping totals as consumpt
 
 Updates then arrive through HACS like any other integration.
 
+## Dashboard card
+
+A ready-made card showing every sensor (built-in Lovelace cards only, no HACS
+frontend dependencies) lives at [`dashboards/mojelektro_card.yaml`](dashboards/mojelektro_card.yaml).
+Add it via **Dashboard → Edit → ＋ Add card → Manual** and paste the YAML, then delete
+any rows for features you disabled. The last card charts long-term statistics — replace
+`<meter>` with your metering-point id slug (see Developer Tools → Statistics).
+
 ## Energy Dashboard
 
 After setup, go to **Settings → Dashboards → Energy → Add consumption** and

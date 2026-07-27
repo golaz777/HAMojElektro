@@ -1,0 +1,93 @@
+# Moj Elektro — dashboard card
+#
+# A single card (vertical stack) showing every sensor the integration creates,
+# using only built-in Lovelace cards (no custom/HACS frontend cards needed).
+#
+# How to add it:
+#   Dashboard → Edit → "＋ Add card" → scroll down → "Manual" → paste this YAML.
+# (Or Edit dashboard → three dots → "Raw configuration editor" and add it under a
+# view's `cards:`.)
+#
+# Delete any rows for features you disabled in the integration's Configure dialog
+# (e.g. the Export section if you have no solar). Entity IDs assume a single
+# Moj Elektro entry; if you added more than one, adjust the `_2` suffixes HA gives them.
+
+type: vertical-stack
+cards:
+  - type: entities
+    title: Moj Elektro — consumption
+    state_color: true
+    entities:
+      - entity: sensor.moj_elektro_daily_consumption
+        name: Daily total
+      - entity: sensor.moj_elektro_daily_consumption_peak
+        name: Daily peak (VT)
+      - entity: sensor.moj_elektro_daily_consumption_off_peak
+        name: Daily off-peak (MT)
+
+  - type: entities
+    title: Moj Elektro — export (solar)
+    state_color: true
+    entities:
+      - entity: sensor.moj_elektro_daily_export
+        name: Daily total
+      - entity: sensor.moj_elektro_daily_export_peak
+        name: Daily peak (VT)
+      - entity: sensor.moj_elektro_daily_export_off_peak
+        name: Daily off-peak (MT)
+
+  - type: entities
+    title: Moj Elektro — time blocks (daily)
+    entities:
+      - entity: sensor.moj_elektro_current_tariff_block
+        name: Current block (now)
+        icon: mdi:transmission-tower
+      - entity: sensor.moj_elektro_daily_consumption_block_1
+        name: Block 1
+      - entity: sensor.moj_elektro_daily_consumption_block_2
+        name: Block 2
+      - entity: sensor.moj_elektro_daily_consumption_block_3
+        name: Block 3
+      - entity: sensor.moj_elektro_daily_consumption_block_4
+        name: Block 4
+      - entity: sensor.moj_elektro_daily_consumption_block_5
+        name: Block 5
+
+  - type: entities
+    title: Moj Elektro — power & contract
+    entities:
+      - entity: sensor.moj_elektro_monthly_peak_power
+        name: Monthly peak power
+      - entity: sensor.moj_elektro_agreed_power_block_1
+        name: Agreed power — block 1
+      - entity: sensor.moj_elektro_agreed_power_block_2
+        name: Agreed power — block 2
+      - entity: sensor.moj_elektro_agreed_power_block_3
+        name: Agreed power — block 3
+      - entity: sensor.moj_elektro_agreed_power_block_4
+        name: Agreed power — block 4
+      - entity: sensor.moj_elektro_agreed_power_block_5
+        name: Agreed power — block 5
+
+  # Daily consumption history (last 30 days), driven by the sensor.
+  - type: history-graph
+    title: Daily consumption (30 days)
+    hours_to_show: 720
+    entities:
+      - entity: sensor.moj_elektro_daily_consumption
+        name: Consumption
+      - entity: sensor.moj_elektro_daily_export
+        name: Export
+
+  # Long-term statistics (Energy Dashboard data). Replace <meter> with your
+  # metering-point id slug, e.g. mojelektro:3_8110057_energy_consumption
+  # (find the exact ids in Developer Tools → Statistics).
+  - type: statistics-graph
+    title: Energy statistics (monthly)
+    period: month
+    stat_types:
+      - change
+    chart_type: bar
+    entities:
+      - mojelektro:<meter>_energy_consumption
+      - mojelektro:<meter>_daily_export
