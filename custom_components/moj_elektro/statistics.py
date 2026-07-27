@@ -5,14 +5,12 @@ at fetch time, misplacing yesterday's usage on today. Instead we push external
 statistics keyed on the API's own reading timestamps, so the Energy Dashboard
 shows each period on the correct day/hour.
 
-Two flavours:
-
-- **Register series** (import/export daily registers): the meter's cumulative
-  register is used as the statistics ``sum``. Re-importing overlapping days with
-  the same cumulative values is idempotent and self-correcting.
-- **Computed series** (time-blocks, and 15-min energy aggregated to hourly): there
-  is no register, so the running ``sum`` is seeded from the last stored statistic
-  (:func:`get_last_statistics`) and continued, keeping sums monotonic and stable.
+Every series is stored as a **from-zero running sum** of per-period consumption:
+the running ``sum`` is seeded from the last stored statistic
+(:func:`get_last_statistics`) and continued, keeping sums monotonic and stable.
+Seeding from zero on a brand-new series means the first point's ``sum`` equals its
+own small consumption — not a lifetime meter odometer — so the ``change`` chart does
+not render a huge false spike on the series' first day.
 """
 
 from __future__ import annotations
@@ -40,16 +38,26 @@ def _hour_start(value: datetime) -> datetime:
     return dt_util.as_utc(value).replace(minute=0, second=0, microsecond=0)
 
 
-def build_statistics(days: list[dict[str, Any]]) -> list[StatisticData]:
-    """Build hour-aligned register rows (``state`` + cumulative ``sum``)."""
-    return [
-        StatisticData(
-            start=_hour_start(day["start"]),
-            state=day["consumption"],
-            sum=day["cumulative"],
-        )
-        for day in days
-    ]
+def _running_rows(
+    periods: list[dict[str, Any]],
+    running: float,
+    last_start: datetime | None,
+) -> tuple[list[StatisticData], float]:
+    """Turn ``[{start, value}]`` into monotonic hour-aligned running-sum rows.
+
+    Periods at or before ``last_start`` are skipped (already stored), so repeated
+    refreshes of the trailing window do not double-count. Returns the new rows and
+    the updated running sum. A fresh series (``running == 0``, ``last_start is
+    None``) starts at its own first value, avoiding a false first-day spike.
+    """
+    rows: list[StatisticData] = []
+    for period in periods:
+        start = _hour_start(period["start"])
+        if last_start is not None and start <= last_start:
+            continue
+        running += period["value"]
+        rows.append(StatisticData(start=start, state=period["value"], sum=running))
+    return rows, running
 
 
 def _metadata(meter_id: str, key: str, name: str) -> StatisticMetaData:
@@ -63,22 +71,6 @@ def _metadata(meter_id: str, key: str, name: str) -> StatisticMetaData:
     )
 
 
-async def async_import_registers(
-    hass: HomeAssistant,
-    meter_id: str,
-    key: str,
-    days: list[dict[str, Any]],
-    name: str | None = None,
-) -> None:
-    """Import a cumulative-register series (idempotent via the register sum)."""
-    rows = build_statistics(days)
-    if not rows:
-        return
-    metadata = _metadata(meter_id, key, name or key)
-    async_add_external_statistics(hass, metadata, rows)
-    _LOGGER.debug("Imported %d register rows for %s/%s", len(rows), meter_id, key)
-
-
 async def async_import_computed(
     hass: HomeAssistant,
     meter_id: str,
@@ -86,10 +78,11 @@ async def async_import_computed(
     periods: list[dict[str, Any]],
     name: str | None = None,
 ) -> None:
-    """Import a computed series, continuing the running sum from stored stats.
+    """Import a series as a running sum, continued from stored stats.
 
-    ``periods`` is ``[{start, value}]``. Only periods after the last stored one
-    are appended, so repeated refreshes of the trailing window do not double-count.
+    ``periods`` is ``[{start, value}]`` where ``value`` is that period's
+    consumption. Only periods after the last stored one are appended, so repeated
+    refreshes of the trailing window do not double-count.
     """
     if not periods:
         return
@@ -105,13 +98,7 @@ async def async_import_computed(
         running = float(prev.get("sum") or 0.0)
         last_start = dt_util.utc_from_timestamp(prev["start"])
 
-    rows: list[StatisticData] = []
-    for period in periods:
-        start = _hour_start(period["start"])
-        if last_start is not None and start <= last_start:
-            continue
-        running += period["value"]
-        rows.append(StatisticData(start=start, state=period["value"], sum=running))
+    rows, _running = _running_rows(periods, running, last_start)
 
     if rows:
         metadata = _metadata(meter_id, key, name or key)

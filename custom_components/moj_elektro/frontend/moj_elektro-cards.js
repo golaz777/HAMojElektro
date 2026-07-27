@@ -119,10 +119,28 @@ class MojElektroCard extends HTMLElement {
 
   _build() {
     const card = document.createElement("ha-card");
-    if (this._config.title) card.header = this._config.title;
+    // When this card shows the graph, give the header a chevron that opens the
+    // daily-consumption more-info popup (a plain ha-card header can't be clickable
+    // and the stock statistics-graph header only navigates to /history). Other
+    // variants keep a plain, non-clickable title; their rows open more-info.
+    const primary = this._showGraph() ? this._present("daily_consumption") : null;
+    if (this._config.title && primary) {
+      card.appendChild(this._buildHeader(this._config.title, primary));
+    } else if (this._config.title) {
+      card.header = this._config.title;
+    }
 
     const style = document.createElement("style");
     style.textContent = `
+      .card-header.clickable {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px 16px;
+        font-size: var(--ha-card-header-font-size, 24px);
+        font-weight: 400; line-height: 1.2;
+        color: var(--ha-card-header-color, var(--primary-text-color));
+        cursor: pointer;
+      }
+      .card-header.clickable ha-icon { color: var(--secondary-text-color); }
       .section { padding: 4px 16px 8px; }
       .section h3 {
         margin: 8px 0 4px; font-size: 0.9em; font-weight: 500;
@@ -238,8 +256,10 @@ class MojElektroCard extends HTMLElement {
     try {
       const helpers = await window.loadCardHelpers();
       const el = helpers.createCardElement({
+        // No `title`: the stock statistics-graph header renders a chevron that
+        // navigates to a full-page /history. We provide our own header in _build()
+        // that opens the more-info popup instead (and avoids a duplicate header).
         type: "statistics-graph",
-        title: this._config.title || "Daily usage",
         period: "day",
         chart_type: "bar",
         days_to_show: this._config.days_to_show || 30,
@@ -262,6 +282,20 @@ class MojElektroCard extends HTMLElement {
       const val = st.state;
       span.textContent = unit ? `${val} ${unit}` : val;
     }
+  }
+
+  // A clickable card header: title + chevron, opening the entity's more-info popup.
+  _buildHeader(title, entityId) {
+    const header = document.createElement("div");
+    header.className = "card-header clickable"; // .card-header = HA header styling
+    const text = document.createElement("span");
+    text.textContent = title;
+    header.appendChild(text);
+    const chevron = document.createElement("ha-icon");
+    chevron.icon = "mdi:chevron-right";
+    header.appendChild(chevron);
+    header.addEventListener("click", () => this._moreInfo(entityId));
+    return header;
   }
 
   _moreInfo(entityId) {

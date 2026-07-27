@@ -14,7 +14,10 @@ metering data. Structured after `golaz777/HAMotoGP`.
 - `statistics.py` — pushes external long-term statistics
   (`moj_elektro:<meter>_energy_consumption`) via `async_add_external_statistics`,
   keyed on the reading's real timestamp so Energy Dashboard placement is correct
-  despite the ~24h API delay. `sum` = cumulative register → re-imports are idempotent.
+  despite the ~24h API delay. Every series is a from-zero running `sum` of per-period
+  consumption (`async_import_computed`, seeded from `get_last_statistics`); starting at
+  zero avoids a false first-day `change` spike. The trailing-window overlap is
+  de-duped via the `start <= last_start` guard.
 - `config_flow.py` — step 1 token + location id (validates via metering-points call,
   distinguishes `invalid_auth` vs `cannot_connect`); step 2 pick usage point.
 - `sensor.py` — one daily-consumption sensor (kWh); the Energy Dashboard uses the

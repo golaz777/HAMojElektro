@@ -107,9 +107,10 @@ most recent day fills in the following day.
 
 - Data is **~24 h delayed** — the most recent complete day is yesterday, so today's
   usage appears tomorrow. The integration polls every 12 h by default (configurable).
-- Register-based statistics (import/export/tariff) use the meter's own cumulative
-  register, so re-imports are idempotent. Computed series (time-blocks, 15-min→hourly)
-  continue their running sum from the recorder.
+- Every long-term statistic (import/export/tariff, time-blocks, 15-min→hourly) is a
+  from-zero running sum of per-period consumption, continued from the recorder's last
+  stored point. Starting at zero keeps the first day's `change` small instead of
+  showing the whole meter reading as a false first-day spike.
 - Reactive energy (R±) and reactive power (Q±) are available in the API but not yet
   surfaced — see [`frlequ/homeassistant-mojelektro`](https://github.com/frlequ/homeassistant-mojelektro)
   for reference implementations.

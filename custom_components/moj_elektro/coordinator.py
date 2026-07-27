@@ -117,8 +117,14 @@ class MojElektroDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "latest": days[-1] if days else None,
             }
             if meas.statistic and days:
-                await stats.async_import_registers(
-                    self.hass, self.meter_id, meas.key, days
+                # Import as a from-zero running sum of daily consumption (not the
+                # raw meter odometer) so the "change" chart shows no false spike on
+                # the series' first day. See statistics.async_import_computed.
+                periods = [
+                    {"start": d["start"], "value": d["consumption"]} for d in days
+                ]
+                await stats.async_import_computed(
+                    self.hass, self.meter_id, meas.key, periods
                 )
 
         # 15-minute interval energy -> hourly statistics (computed sums).

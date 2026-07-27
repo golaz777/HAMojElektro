@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.1
+
+- Daily usage card: fixed the duplicated "Daily usage" header, and the header's
+  chevron now opens the daily-consumption more-info popup instead of navigating away
+  to the full History page.
+- Long-term statistics are now stored as a from-zero running sum of daily consumption
+  instead of the raw meter register, so the bar chart no longer shows a huge false
+  spike on the series' first day (the whole meter reading rendered as one day).
+  Existing series' historical first-day bar scrolls out of the 30-day window on its
+  own; clear + re-import the statistic in Developer Tools for an immediate clean slate.
+
 ## 1.1.0
 
 - Split the dashboard card into separate, individually addable cards so you can place
