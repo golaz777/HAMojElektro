@@ -4,7 +4,17 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from custom_components.mojelektro.const import statistic_id
 from custom_components.mojelektro.statistics import build_statistics
+
+
+def test_statistic_id_is_slugified():
+    """Meter ids with hyphens/uppercase become valid external statistic ids."""
+    from homeassistant.components.recorder.statistics import valid_statistic_id
+
+    sid = statistic_id("3-8110057")
+    assert sid == "mojelektro:3_8110057_energy_consumption"
+    assert valid_statistic_id(sid)
 
 
 def _day(iso: str, consumption: float, cumulative: float) -> dict:

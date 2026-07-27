@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Final
 
+from homeassistant.util import slugify
+
 DOMAIN: Final = "mojelektro"
 
 # Moj Elektro REST API (Informatika d.o.o.). Production environment.
@@ -39,5 +41,10 @@ ENERGY_UNIT: Final = "kWh"
 
 
 def statistic_id(meter_id: str) -> str:
-    """External statistic id for a metering point (``mojelektro:<meter>_...``)."""
-    return f"{DOMAIN}:{meter_id}_energy_consumption"
+    """External statistic id for a metering point (``mojelektro:<meter>_...``).
+
+    HA requires external statistic ids to match ``[a-z0-9_]`` with no leading/
+    trailing or doubled underscores, so the metering-point id (which may contain
+    hyphens/uppercase, e.g. ``3-8110057``) is slugified first.
+    """
+    return f"{DOMAIN}:{slugify(meter_id)}_energy_consumption"

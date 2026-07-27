@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Fix `Invalid statistic_id` setup error for metering points whose id contains
+  hyphens or uppercase (e.g. `3-8110057`); the external statistic id is now
+  slugified to `mojelektro:3_8110057_energy_consumption`.
+
 ## 0.1.0
 
 - Initial release.
