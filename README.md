@@ -52,11 +52,25 @@ Updates then arrive through HACS like any other integration.
 
 ## Dashboard card
 
-A ready-made card showing every sensor (built-in Lovelace cards only, no HACS
-frontend dependencies) lives at [`dashboards/mojelektro_card.yaml`](dashboards/mojelektro_card.yaml).
-Add it via **Dashboard → Edit → ＋ Add card → Manual** and paste the YAML, then delete
-any rows for features you disabled. The last card charts long-term statistics — replace
-`<meter>` with your metering-point id slug (see Developer Tools → Statistics).
+The integration bundles a **Moj Elektro** dashboard card and registers it with the
+frontend automatically. Just add it from the UI:
+
+**Dashboard → Edit → ＋ Add card → search "Moj Elektro"**
+
+The card auto-discovers every sensor and groups them (consumption, export, time blocks,
+power & contract) — no YAML. If it doesn't show right after updating, hard-refresh the
+browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
+
+Optional config (all optional):
+
+```yaml
+type: custom:mojelektro-card
+title: Moj Elektro
+prefix: sensor.moj_elektro_   # change only if HA gave your entities a different prefix
+```
+
+A plain built-in-cards version (no custom card) is also available as
+[`dashboards/mojelektro_card.yaml`](dashboards/mojelektro_card.yaml) for manual pasting.
 
 ## Energy Dashboard
 

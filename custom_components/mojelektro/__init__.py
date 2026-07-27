@@ -10,6 +10,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import MojElektroApiClient
 from .const import CONF_TOKEN
 from .coordinator import MojElektroDataUpdateCoordinator
+from .frontend_registration import async_register_frontend
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
@@ -20,6 +21,7 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: MojElektroConfigEntry
 ) -> bool:
     """Set up Moj Elektro from a config entry."""
+    await async_register_frontend(hass)
     session = async_get_clientsession(hass)
     client = MojElektroApiClient(session, entry.data[CONF_TOKEN])
     coordinator = MojElektroDataUpdateCoordinator(hass, entry, client)

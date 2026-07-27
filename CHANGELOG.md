@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Bundled **Moj Elektro dashboard card**: the integration registers a custom
+  Lovelace card, so you can add it from **Add card → Moj Elektro** (no YAML
+  pasting). It auto-discovers and groups all sensors. May require one browser
+  refresh / cache clear after updating.
+
 ## 0.2.0
 
 Expanded data (all opt-out-able in the integration's **Configure** dialog):
