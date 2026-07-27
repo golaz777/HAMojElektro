@@ -64,15 +64,24 @@ appear on the device and integration pages automatically, no brands-repo submiss
 
 ## Dashboard card
 
-The integration bundles a **Moj Elektro** dashboard card and registers it with the
-frontend automatically. Just add it from the UI:
+The integration bundles several **Moj Elektro** cards and registers them with the
+frontend automatically. Add them from the UI:
 
 **Dashboard → Edit → ＋ Add card → search "Moj Elektro"**
 
-The card shows a **daily usage (kWh) bar chart** (from long-term statistics, statistic
-auto-detected) and auto-discovers every sensor, grouped (consumption, export, time
-blocks, power & contract) — no YAML. If it doesn't show right after updating, hard-refresh
-the browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
+You can use the single combined card, or mix and match the smaller per-section cards:
+
+| Card type | Shows |
+| --- | --- |
+| `custom:moj-elektro-card` | Everything — daily-usage graph + all sections |
+| `custom:moj-elektro-daily-card` | Daily usage (kWh) bar chart only |
+| `custom:moj-elektro-consumption-card` | Consumption total / peak / off-peak |
+| `custom:moj-elektro-export-card` | Solar export |
+| `custom:moj-elektro-blocks-card` | Current block + daily kWh per block |
+| `custom:moj-elektro-power-card` | Monthly peak + agreed power |
+
+All auto-discover their sensors — no YAML. If a card doesn't show right after updating,
+hard-refresh the browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
 
 Optional config (all optional):
 
@@ -80,6 +89,9 @@ Optional config (all optional):
 type: custom:moj-elektro-card
 title: Moj Elektro
 prefix: sensor.moj_elektro_   # change only if HA gave your entities a different prefix
+sections: [consumption, export, blocks, power]  # limit which groups to show
+daily_graph: true            # show/hide the daily-usage kWh chart
+days_to_show: 30
 ```
 
 A plain built-in-cards version (no custom card) is also available as

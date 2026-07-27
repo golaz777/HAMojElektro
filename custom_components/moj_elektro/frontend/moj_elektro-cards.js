@@ -1,25 +1,33 @@
 /*
- * Moj Elektro dashboard card.
+ * Moj Elektro dashboard cards.
  *
- * A dependency-free custom Lovelace card that auto-discovers the sensors created
- * by the Moj Elektro integration and renders them grouped. Registered with the
- * frontend by the integration, so it appears in the "Add card" picker as
- * "Moj Elektro" — no manual YAML required.
+ * Dependency-free custom Lovelace cards that auto-discover the sensors created by
+ * the Moj Elektro integration. Registered with the frontend by the integration,
+ * so they appear in the "Add card" picker — no manual YAML required.
  *
- * Optional config:
- *   type: custom:moj-elektro-card
- *   title: Moj Elektro          # card header (default "Moj Elektro")
+ * Cards (each addable on its own):
+ *   custom:moj-elektro-card              — everything (daily graph + all sections)
+ *   custom:moj-elektro-daily-card        — daily usage (kWh) bar chart only
+ *   custom:moj-elektro-consumption-card  — consumption (total / peak / off-peak)
+ *   custom:moj-elektro-export-card       — solar export
+ *   custom:moj-elektro-blocks-card       — current block + daily kWh per block
+ *   custom:moj-elektro-power-card        — monthly peak + agreed power
+ *
+ * Optional config (all optional):
+ *   title: ...                  # card header
  *   prefix: sensor.moj_elektro_ # entity-id prefix to match (default this)
- *   daily_graph: true           # show the daily-usage kWh bar chart (default true)
+ *   sections: [consumption, export, blocks, power]  # which groups to show
+ *   daily_graph: true|false     # show the daily-usage kWh bar chart
  *   days_to_show: 30            # days in the daily-usage chart (default 30)
  *   statistic: moj_elektro:..._energy_consumption  # override auto-detection
  */
 
 const DEFAULT_PREFIX = "sensor.moj_elektro_";
 
-// Section title -> ordered list of entity-id suffixes to show if present.
+// Section id -> title + ordered list of [entity-id suffix, label].
 const SECTIONS = [
   {
+    id: "consumption",
     title: "Consumption",
     rows: [
       ["daily_consumption", "Daily total"],
@@ -28,6 +36,7 @@ const SECTIONS = [
     ],
   },
   {
+    id: "export",
     title: "Export (solar)",
     rows: [
       ["daily_export", "Daily total"],
@@ -36,6 +45,7 @@ const SECTIONS = [
     ],
   },
   {
+    id: "blocks",
     title: "Time blocks (daily)",
     rows: [
       ["current_tariff_block", "Current block (now)"],
@@ -47,6 +57,7 @@ const SECTIONS = [
     ],
   },
   {
+    id: "power",
     title: "Power & contract",
     rows: [
       ["monthly_peak_power", "Monthly peak power"],
@@ -60,10 +71,17 @@ const SECTIONS = [
 ];
 
 class MojElektroCard extends HTMLElement {
+  // Subclasses override this to preset a title / sections / daily_graph.
+  static get presets() {
+    return {};
+  }
+
   setConfig(config) {
-    this._config = config || {};
+    this._config = Object.assign({}, this.constructor.presets, config || {});
     this._prefix = this._config.prefix || DEFAULT_PREFIX;
     this._built = false;
+    this._graphBuilt = false;
+    this._graphEl = null;
     this._rows = {}; // entity_id -> value <span>
     this.innerHTML = "";
   }
@@ -89,9 +107,19 @@ class MojElektroCard extends HTMLElement {
     return this._hass && this._hass.states[id] ? id : null;
   }
 
+  _wantedSections() {
+    const wanted = this._config.sections;
+    if (!Array.isArray(wanted)) return SECTIONS;
+    return SECTIONS.filter((s) => wanted.includes(s.id));
+  }
+
+  _showGraph() {
+    return this._config.daily_graph !== false;
+  }
+
   _build() {
     const card = document.createElement("ha-card");
-    card.header = this._config.title || "Moj Elektro";
+    if (this._config.title) card.header = this._config.title;
 
     const style = document.createElement("style");
     style.textContent = `
@@ -119,16 +147,19 @@ class MojElektroCard extends HTMLElement {
     card.appendChild(this._graphSlot);
 
     let anyRow = false;
-    for (const section of SECTIONS) {
+    for (const section of this._wantedSections()) {
       const present = section.rows.filter(([suffix]) => this._present(suffix));
       if (present.length === 0) continue;
       anyRow = true;
 
       const wrap = document.createElement("div");
       wrap.className = "section";
-      const h = document.createElement("h3");
-      h.textContent = section.title;
-      wrap.appendChild(h);
+      // Only label sections when more than one is shown.
+      if (this._wantedSections().length > 1) {
+        const h = document.createElement("h3");
+        h.textContent = section.title;
+        wrap.appendChild(h);
+      }
 
       for (const [suffix, label] of present) {
         const id = this._prefix + suffix;
@@ -152,7 +183,6 @@ class MojElektroCard extends HTMLElement {
         row.appendChild(value);
         this._rows[id] = value;
 
-        // Clicking a row opens the entity's more-info dialog.
         row.style.cursor = "pointer";
         row.addEventListener("click", () => this._moreInfo(id));
 
@@ -161,7 +191,7 @@ class MojElektroCard extends HTMLElement {
       card.appendChild(wrap);
     }
 
-    if (!anyRow) {
+    if (!anyRow && !this._showGraph()) {
       const empty = document.createElement("div");
       empty.className = "empty";
       empty.textContent =
@@ -174,7 +204,7 @@ class MojElektroCard extends HTMLElement {
     this.appendChild(card);
     this._built = true;
 
-    if (this._config.daily_graph !== false) {
+    if (this._showGraph()) {
       this._buildGraph();
     }
   }
@@ -209,7 +239,7 @@ class MojElektroCard extends HTMLElement {
       const helpers = await window.loadCardHelpers();
       const el = helpers.createCardElement({
         type: "statistics-graph",
-        title: "Daily usage",
+        title: this._config.title || "Daily usage",
         period: "day",
         chart_type: "bar",
         days_to_show: this._config.days_to_show || 30,
@@ -245,20 +275,58 @@ class MojElektroCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 8;
-  }
-
-  static getStubConfig() {
-    return { title: "Moj Elektro" };
+    const sections = this._wantedSections().length;
+    return (this._showGraph() ? 4 : 0) + sections * 3 + 1;
   }
 }
 
-customElements.define("moj-elektro-card", MojElektroCard);
+// --- Card variants -------------------------------------------------------
+
+class MojElektroDailyCard extends MojElektroCard {
+  static get presets() {
+    return { title: "Daily usage", sections: [], daily_graph: true };
+  }
+}
+class MojElektroConsumptionCard extends MojElektroCard {
+  static get presets() {
+    return { title: "Consumption", sections: ["consumption"], daily_graph: false };
+  }
+}
+class MojElektroExportCard extends MojElektroCard {
+  static get presets() {
+    return { title: "Export (solar)", sections: ["export"], daily_graph: false };
+  }
+}
+class MojElektroBlocksCard extends MojElektroCard {
+  static get presets() {
+    return { title: "Time blocks", sections: ["blocks"], daily_graph: false };
+  }
+}
+class MojElektroPowerCard extends MojElektroCard {
+  static get presets() {
+    return { title: "Power & contract", sections: ["power"], daily_graph: false };
+  }
+}
+
+const CARDS = [
+  ["moj-elektro-card", MojElektroCard, "Moj Elektro (all)",
+    "Daily graph plus every sensor, grouped."],
+  ["moj-elektro-daily-card", MojElektroDailyCard, "Moj Elektro: Daily usage",
+    "Daily usage (kWh) bar chart."],
+  ["moj-elektro-consumption-card", MojElektroConsumptionCard,
+    "Moj Elektro: Consumption", "Daily consumption total / peak / off-peak."],
+  ["moj-elektro-export-card", MojElektroExportCard, "Moj Elektro: Export",
+    "Daily solar export total / peak / off-peak."],
+  ["moj-elektro-blocks-card", MojElektroBlocksCard, "Moj Elektro: Time blocks",
+    "Current block and daily kWh per block."],
+  ["moj-elektro-power-card", MojElektroPowerCard, "Moj Elektro: Power",
+    "Monthly peak and agreed power per block."],
+];
 
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "moj-elektro-card",
-  name: "Moj Elektro",
-  description: "All Moj Elektro sensors (consumption, export, blocks, power).",
-  preview: false,
-});
+for (const [type, cls, name, description] of CARDS) {
+  if (!customElements.get(type)) {
+    customElements.define(type, cls);
+  }
+  window.customCards.push({ type, name, description, preview: false });
+}

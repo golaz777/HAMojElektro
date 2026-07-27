@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Split the dashboard card into separate, individually addable cards so you can place
+  each block where you want: `moj-elektro-daily-card` (daily usage graph),
+  `moj-elektro-consumption-card`, `moj-elektro-export-card`, `moj-elektro-blocks-card`,
+  `moj-elektro-power-card`. The combined `moj-elektro-card` still shows everything.
+- The combined card also accepts `sections:` and `daily_graph:` to tailor what it shows.
+
 ## 1.0.1
 
 - Dashboard card: the registered JS url now carries a `?v=<version>` cache-buster so
