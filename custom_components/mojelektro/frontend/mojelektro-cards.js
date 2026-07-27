@@ -10,6 +10,9 @@
  *   type: custom:mojelektro-card
  *   title: Moj Elektro          # card header (default "Moj Elektro")
  *   prefix: sensor.moj_elektro_ # entity-id prefix to match (default this)
+ *   daily_graph: true           # show the daily-usage kWh bar chart (default true)
+ *   days_to_show: 30            # days in the daily-usage chart (default 30)
+ *   statistic: mojelektro:..._energy_consumption  # override auto-detection
  */
 
 const DEFAULT_PREFIX = "sensor.moj_elektro_";
@@ -71,6 +74,9 @@ class MojElektroCard extends HTMLElement {
       this._build();
     }
     this._update();
+    if (this._graphEl) {
+      this._graphEl.hass = hass;
+    }
   }
 
   _present(suffix) {
@@ -98,8 +104,14 @@ class MojElektroCard extends HTMLElement {
       .name ha-icon { color: var(--state-icon-color, var(--paper-item-icon-color)); }
       .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
       .empty { padding: 16px; color: var(--secondary-text-color); }
+      .graph { padding: 0 8px; }
     `;
     card.appendChild(style);
+
+    // Slot for the daily-usage statistics graph (filled asynchronously).
+    this._graphSlot = document.createElement("div");
+    this._graphSlot.className = "graph";
+    card.appendChild(this._graphSlot);
 
     let anyRow = false;
     for (const section of SECTIONS) {
@@ -156,6 +168,55 @@ class MojElektroCard extends HTMLElement {
     this.innerHTML = "";
     this.appendChild(card);
     this._built = true;
+
+    if (this._config.daily_graph !== false) {
+      this._buildGraph();
+    }
+  }
+
+  async _buildGraph() {
+    if (this._graphBuilt) return;
+    this._graphBuilt = true;
+
+    // Resolve the daily-consumption statistic id (auto-detect unless configured).
+    let statId = this._config.statistic;
+    if (!statId) {
+      try {
+        const ids = await this._hass.callWS({
+          type: "recorder/list_statistic_ids",
+          statistic_type: "sum",
+        });
+        const match = (ids || []).find(
+          (s) =>
+            s.statistic_id &&
+            s.statistic_id.startsWith("mojelektro:") &&
+            s.statistic_id.endsWith("_energy_consumption")
+        );
+        statId = match && match.statistic_id;
+      } catch (err) {
+        // Recorder not available or WS unsupported — skip the graph.
+        return;
+      }
+    }
+    if (!statId || !this._graphSlot) return;
+
+    try {
+      const helpers = await window.loadCardHelpers();
+      const el = helpers.createCardElement({
+        type: "statistics-graph",
+        title: "Daily usage",
+        period: "day",
+        chart_type: "bar",
+        days_to_show: this._config.days_to_show || 30,
+        stat_types: ["change"],
+        entities: [statId],
+      });
+      el.hass = this._hass;
+      this._graphEl = el;
+      this._graphSlot.appendChild(el);
+    } catch (err) {
+      // loadCardHelpers unavailable — leave the slot empty.
+    }
   }
 
   _update() {

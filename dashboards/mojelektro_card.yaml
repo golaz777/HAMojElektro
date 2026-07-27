@@ -79,9 +79,20 @@ cards:
       - entity: sensor.moj_elektro_daily_export
         name: Export
 
-  # Long-term statistics (Energy Dashboard data). Replace <meter> with your
-  # metering-point id slug, e.g. mojelektro:3_8110057_energy_consumption
+  # Daily usage (kWh) bar chart from long-term statistics. Replace <meter> with
+  # your metering-point id slug, e.g. mojelektro:3_8110057_energy_consumption
   # (find the exact ids in Developer Tools → Statistics).
+  - type: statistics-graph
+    title: Daily usage (kWh)
+    period: day
+    days_to_show: 30
+    stat_types:
+      - change
+    chart_type: bar
+    entities:
+      - mojelektro:<meter>_energy_consumption
+
+  # Monthly energy statistics (consumption vs export).
   - type: statistics-graph
     title: Energy statistics (monthly)
     period: month

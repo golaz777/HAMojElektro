@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+- The **Moj Elektro** dashboard card now shows a **daily usage (kWh) bar chart** at
+  the top, built from long-term statistics. The consumption statistic is auto-detected
+  (override with `statistic:`; adjust range with `days_to_show:`; hide with
+  `daily_graph: false`).
+
 ## 0.3.1
 
 - Added brand assets (device icon + logo) under `custom_components/mojelektro/brand/`.

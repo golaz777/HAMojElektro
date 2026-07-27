@@ -70,9 +70,10 @@ frontend automatically. Just add it from the UI:
 
 **Dashboard → Edit → ＋ Add card → search "Moj Elektro"**
 
-The card auto-discovers every sensor and groups them (consumption, export, time blocks,
-power & contract) — no YAML. If it doesn't show right after updating, hard-refresh the
-browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
+The card shows a **daily usage (kWh) bar chart** (from long-term statistics, statistic
+auto-detected) and auto-discovers every sensor, grouped (consumption, export, time
+blocks, power & contract) — no YAML. If it doesn't show right after updating, hard-refresh
+the browser (Ctrl/Cmd-Shift-R) to clear the cached resource.
 
 Optional config (all optional):
 
