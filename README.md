@@ -12,8 +12,13 @@ than on the day it happened to be fetched.
 ## Features
 
 - Config flow (UI): enter your API token, then pick a metering point.
-- `sensor.moj_elektro_daily_consumption` — the last completed day's consumption (kWh).
-- Energy Dashboard statistic `mojelektro:<meter>_energy_consumption`.
+- **Daily consumption** sensor + accurate Energy Dashboard statistic
+  (`mojelektro:<meter>_energy_consumption`), timestamped on the real day of use.
+- **Solar export**, **peak/off-peak split**, **5 network time-blocks**, and
+  **15-minute** detail — each as sensors and/or long-term statistics (see below).
+- **Helper sensors**: current tariff block (1–5), monthly peak power, agreed power per block.
+- **Bundled dashboard card** — add "Moj Elektro" from the card picker, no YAML.
+- Everything beyond the daily total is toggleable in the integration's **Configure** dialog.
 
 ### Optional data (toggle in **Configure**)
 
@@ -78,9 +83,13 @@ After setup, go to **Settings → Dashboards → Energy → Add consumption** an
 select `mojelektro:<meter>_energy_consumption`. Because data is delayed ~24h, the
 most recent day fills in the following day.
 
-## Notes / roadmap
+## Notes
 
-Only daily consumption is exposed today. 15-minute intervals, tariff/time-block
-breakdown, and energy production (net metering) are possible follow-ups — see
-[`frlequ/homeassistant-mojelektro`](https://github.com/frlequ/homeassistant-mojelektro)
-for reference implementations.
+- Data is **~24 h delayed** — the most recent complete day is yesterday, so today's
+  usage appears tomorrow. The integration polls every 12 h by default (configurable).
+- Register-based statistics (import/export/tariff) use the meter's own cumulative
+  register, so re-imports are idempotent. Computed series (time-blocks, 15-min→hourly)
+  continue their running sum from the recorder.
+- Reactive energy (R±) and reactive power (Q±) are available in the API but not yet
+  surfaced — see [`frlequ/homeassistant-mojelektro`](https://github.com/frlequ/homeassistant-mojelektro)
+  for reference implementations.
